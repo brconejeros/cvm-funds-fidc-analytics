@@ -1,0 +1,27 @@
+name: Enforce branch flow
+
+# Only develop or hotfix/* may open pull requests into main.
+on:
+  pull_request:
+    branches: [main]
+
+permissions: {}
+
+jobs:
+  check-head-branch:
+    name: Check source branch
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate head branch
+        env:
+          HEAD_REF: ${{ github.head_ref }}
+        run: |
+          case "$HEAD_REF" in
+            develop|hotfix/*)
+              echo "OK: '$HEAD_REF' is allowed to merge into main."
+              ;;
+            *)
+              echo "::error::Pull requests into main must come from 'develop' or 'hotfix/*'. Got: '$HEAD_REF'. Target 'develop' instead."
+              exit 1
+              ;;
+          esac

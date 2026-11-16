@@ -1,0 +1,42 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [develop, main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  dbt-build-duckdb:
+    name: dbt build (DuckDB)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.12"
+          enable-cache: true
+          cache-dependency-glob: uv.lock
+
+      - name: Install pinned dependencies
+        run: uv sync --frozen
+
+      - name: Prepare dbt profile
+        run: |
+          cp dbt/profiles.yml.example dbt/profiles.yml
+          mkdir -p data/duckdb
+
+      - name: dbt deps
+        run: uv run --frozen dbt deps --project-dir dbt --profiles-dir dbt
+
+      - name: dbt build
+        run: uv run --frozen dbt build --project-dir dbt --profiles-dir dbt --target duckdb

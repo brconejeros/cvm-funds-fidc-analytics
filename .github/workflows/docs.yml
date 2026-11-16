@@ -1,0 +1,66 @@
+name: Docs
+
+# Builds dbt docs on DuckDB and publishes them to GitHub Pages.
+# Requires Settings → Pages → Source: "GitHub Actions".
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Generate dbt docs
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.12"
+          enable-cache: true
+          cache-dependency-glob: uv.lock
+
+      - name: Install pinned dependencies
+        run: uv sync --frozen
+
+      - name: Prepare dbt profile
+        run: |
+          cp dbt/profiles.yml.example dbt/profiles.yml
+          mkdir -p data/duckdb
+
+      - name: dbt deps, build and docs generate
+        run: |
+          uv run --frozen dbt deps --project-dir dbt --profiles-dir dbt
+          uv run --frozen dbt build --project-dir dbt --profiles-dir dbt --target duckdb
+          uv run --frozen dbt docs generate --project-dir dbt --profiles-dir dbt --target duckdb
+
+      - name: Collect site
+        run: |
+          mkdir -p site
+          cp dbt/target/index.html dbt/target/manifest.json dbt/target/catalog.json site/
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  deploy:
+    name: Deploy to GitHub Pages
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
