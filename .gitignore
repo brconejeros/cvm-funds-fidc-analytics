@@ -1,0 +1,47 @@
+# Secrets
+.env
+.env.*
+!.env.example
+*.p8
+*.pem
+
+# Local agent worktrees
+.claude/worktrees/
+
+# Python
+venv/
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+htmlcov/
+.coverage
+
+# dbt
+dbt/target/
+dbt/dbt_packages/
+dbt/logs/
+dbt/profiles.yml
+profiles.yml
+!profiles.yml.example
+.user.yml
+__dbt_cache__/
+logs/
+
+# Local databases
+data/duckdb/*
+!data/duckdb/.gitkeep
+*.duckdb
+*.duckdb.wal
+
+# Local raw data (never versioned; only the curated ODbL sample under data/sample/ is)
+data/raw/
+data/landing/
+*.zip
+!data/sample/**/*.zip
+!data/sample/**/*.csv.gz
+
+# OS / editors
+.DS_Store
+.idea/
+.vscode/
