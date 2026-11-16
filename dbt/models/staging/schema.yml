@@ -1,0 +1,19 @@
+version: 2
+
+models:
+  - name: stg_hello
+    description: Placeholder model with literal rows, used to verify the dbt setup builds and tests on DuckDB.
+    columns:
+      - name: hello_id
+        description: Surrogate id of the literal row.
+        data_tests:
+          - not_null
+          - unique
+      - name: greeting
+        description: Literal greeting text.
+        data_tests:
+          - not_null
+          - dbt_expectations.expect_column_value_lengths_to_be_between:
+              arguments:
+                min_value: 1
+                max_value: 20

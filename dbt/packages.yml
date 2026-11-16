@@ -1,0 +1,7 @@
+packages:
+  # Maintained fork of calogica/dbt_expectations; supports DuckDB and Snowflake.
+  # Pulls in godatadriven/dbt_date (timezone set in dbt_project.yml vars).
+  - package: metaplane/dbt_expectations
+    version: 0.10.10
+  - package: dbt-labs/dbt_utils
+    version: 1.4.1

@@ -1,0 +1,41 @@
+name: cvm_funds_fidc_analytics
+version: "0.1.0"
+config-version: 2
+require-dbt-version: [">=1.10.0", "<3.0.0"]
+
+profile: cvm_funds_fidc_analytics
+
+model-paths: ["models"]
+seed-paths: ["seeds"]
+snapshot-paths: ["snapshots"]
+macro-paths: ["macros"]
+test-paths: ["tests"]
+analysis-paths: ["analyses"]
+
+target-path: "target"
+packages-install-path: "dbt_packages"
+clean-targets: ["target", "dbt_packages"]
+
+vars:
+  "dbt_date:time_zone": "America/Sao_Paulo"
+
+# Schemas are suffixed to the target schema: e.g. cvm_staging, cvm_intermediate, cvm_marts.
+models:
+  cvm_funds_fidc_analytics:
+    staging:
+      +materialized: view
+      +schema: staging
+    intermediate:
+      +materialized: view
+      +schema: intermediate
+    marts:
+      +materialized: table
+      +schema: marts
+
+seeds:
+  cvm_funds_fidc_analytics:
+    +schema: seeds
+
+snapshots:
+  cvm_funds_fidc_analytics:
+    +schema: snapshots
